@@ -41,6 +41,12 @@ try:
 except Exception:
     analysis_router_new = None
 
+# AI completion router
+try:
+    from server.routers.completion_router import router as completion_router
+except Exception:
+    completion_router = None
+
 # 2090 add‑on routers
 try:
     # Quantum orchestrator endpoints
