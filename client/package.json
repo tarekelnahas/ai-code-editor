@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --port 5173",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "tsc --noEmit && echo 'TypeScript check passed'",
+    "test": "echo 'No tests specified yet'"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
