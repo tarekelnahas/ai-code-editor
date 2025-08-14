@@ -143,6 +143,10 @@ if github_router is not None:
 if analysis_router_new is not None:
     app.include_router(analysis_router_new, prefix="/api", tags=["analysis"])
 
+# Include AI Completion router
+if completion_router is not None:
+    app.include_router(completion_router, prefix="/api", tags=["completion"])
+
 # Include 2090 add‑on routers (conditionally)
 if quantum_router is not None:
     app.include_router(quantum_router, prefix="/api/quantum", tags=["quantum2090"])
