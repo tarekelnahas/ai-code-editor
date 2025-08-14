@@ -29,6 +29,12 @@ from sys_metrics import router as sys_router
 from tasks import router as tasks_router
 from server.routers.experiments_router import router as experiments_router
 
+# GitHub integration router
+try:
+    from server.routers.github_router import router as github_router
+except Exception:
+    github_router = None
+
 # 2090 add‑on routers
 try:
     # Quantum orchestrator endpoints
