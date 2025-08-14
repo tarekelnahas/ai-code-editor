@@ -341,6 +341,62 @@ const generated = await fetch('/api/completion/generate', {
 });
 ```
 
+### Codex Integration
+
+```javascript
+// Generate advanced code with Codex
+const codexGenerated = await fetch('/api/codex/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    prompt: 'Create a REST API endpoint for user authentication with JWT tokens',
+    language: 'python',
+    max_tokens: 300
+  })
+});
+
+// Explain complex code
+const explanation = await fetch('/api/codex/explain', {
+  method: 'POST', 
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    code: complexAlgorithmCode,
+    language: 'python'
+  })
+});
+
+// Optimize existing code
+const optimized = await fetch('/api/codex/optimize', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    code: existingCode,
+    language: 'javascript'
+  })
+});
+
+// Generate comprehensive tests
+const tests = await fetch('/api/codex/generate-tests', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    code: functionToTest,
+    language: 'python'
+  })
+});
+
+// Convert between languages
+const converted = await fetch('/api/codex/convert', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    code: pythonCode,
+    from_language: 'python',
+    to_language: 'javascript'
+  })
+});
+```
+
 ## 🎯 Benefits
 
 ### For Developers
