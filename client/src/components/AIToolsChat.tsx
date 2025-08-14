@@ -118,9 +118,13 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
   };
 
   return (
-    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 12}}>
-      <div style={{fontSize: 14, fontWeight: 'bold', color: 'var(--accent)'}}>
-        🤖 AI with Tools Access ({availableTools.length} tools available)
+    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '16px'}}>
+      <div style={{fontSize: 14, fontWeight: 'bold', color: '#007acc', display: 'flex', alignItems: 'center', gap: 8}}>
+        <span style={{fontSize: '16px'}}>🤖</span>
+        AI Assistant
+        <span style={{fontSize: '12px', background: 'rgba(0, 122, 204, 0.1)', padding: '2px 6px', borderRadius: '4px', color: '#007acc'}}>
+          {availableTools.length} tools
+        </span>
       </div>
       
       <div style={{
@@ -139,24 +143,45 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
         
         {messages.map((msg, idx) => (
           <div key={idx} style={{
-            marginBottom: 12,
-            padding: 8,
-            borderRadius: 6,
-            background: msg.role === 'user' ? 'rgba(34,211,238,0.1)' : 
-                        msg.role === 'system' ? 'rgba(167,139,250,0.1)' : 
-                        'rgba(255,255,255,0.05)'
+            marginBottom: 16,
+            padding: '12px 16px',
+            borderRadius: 8,
+            background: msg.role === 'user' ? 'rgba(0, 122, 204, 0.1)' : 
+                        msg.role === 'system' ? 'rgba(139, 69, 19, 0.1)' : 
+                        'rgba(40, 40, 40, 0.5)',
+            border: `1px solid ${msg.role === 'user' ? 'rgba(0, 122, 204, 0.2)' : 
+                                  msg.role === 'system' ? 'rgba(139, 69, 19, 0.2)' : 
+                                  'rgba(60, 60, 60, 0.3)'}`,
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
           }}>
-            <div style={{fontSize: 10, opacity: 0.7, marginBottom: 4}}>
-              {msg.role.toUpperCase()} {msg.timestamp && new Date(msg.timestamp).toLocaleTimeString()}
+            <div style={{
+              fontSize: 11, 
+              opacity: 0.8, 
+              marginBottom: 8, 
+              fontWeight: 600,
+              color: msg.role === 'user' ? '#007acc' : 
+                     msg.role === 'system' ? '#d2691e' : '#50c878',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              <span>{msg.role === 'user' ? '👤' : msg.role === 'system' ? '⚙️' : '🤖'}</span>
+              {msg.role.charAt(0).toUpperCase() + msg.role.slice(1)}
+              {msg.timestamp && (
+                <span style={{opacity: 0.6, fontSize: 10}}>
+                  • {new Date(msg.timestamp).toLocaleTimeString()}
+                </span>
+              )}
             </div>
-            <pre style={{
+            <div style={{
               whiteSpace: 'pre-wrap',
-              fontSize: 12,
-              margin: 0,
-              fontFamily: 'inherit'
+              fontSize: 13,
+              lineHeight: 1.5,
+              color: '#e0e0e0',
+              fontFamily: msg.role === 'system' ? 'monospace' : 'inherit'
             }}>
               {msg.content}
-            </pre>
+            </div>
           </div>
         ))}
         
