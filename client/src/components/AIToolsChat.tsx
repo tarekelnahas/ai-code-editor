@@ -278,7 +278,7 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
   };
 
   return (
-    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 0}}>
+    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 0}} data-version="upgraded-v2">
       {/* Header */}
       <div style={{
         padding: '12px 16px',
