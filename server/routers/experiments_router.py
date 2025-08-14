@@ -2,7 +2,7 @@
 import json
 from fastapi import APIRouter, HTTPException
 from typing import List
-from server.experiment_tracker import Experiment
+from experiment_tracker import Experiment
 
 router = APIRouter()
 
