@@ -47,6 +47,12 @@ try:
 except Exception:
     completion_router = None
 
+# Codex integration router
+try:
+    from server.routers.codex_router import router as codex_router
+except Exception:
+    codex_router = None
+
 # 2090 add‑on routers
 try:
     # Quantum orchestrator endpoints
