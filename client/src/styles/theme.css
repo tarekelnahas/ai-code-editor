@@ -1,0 +1,220 @@
+:root{
+  /* Trae AI inspired color palette - modern and professional */
+  --bg: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d30;
+  --panel: #252526;
+  --panel-border: #3c3c3c;
+  --sidebar: #181818;
+  --editor-bg: #1e1e1e;
+  
+  /* Text colors */
+  --text-primary: #cccccc;
+  --text-secondary: #969696;
+  --text-muted: #6a6a6a;
+  --text-bright: #ffffff;
+  
+  /* Accent colors - modern blue like Trae */
+  --accent-primary: #007acc;
+  --accent-secondary: #0e7490;
+  --accent-hover: #1177bb;
+  
+  /* UI element colors */
+  --border: #3c3c3c;
+  --border-light: #484848;
+  --hover: #2a2d2e;
+  --active: #37373d;
+  --focus: #005fb8;
+  
+  /* Status colors */
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #f44336;
+  
+  /* Shadow and depth */
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+}
+
+/* Reset any conflicting styles */
+body, html {
+  background: var(--bg) !important;
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Override any Tailwind classes */
+#root {
+  height: 100vh;
+  background: var(--bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.app{
+  background: var(--bg) !important;
+  color: var(--text-primary) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Trae AI-inspired panel styling */
+.panel{
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px var(--shadow-light) !important;
+}
+
+/* Modern button styling like VS Code/Trae */
+.btn{
+  background: var(--accent-primary) !important;
+  border: 1px solid var(--accent-primary) !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  color: var(--text-bright) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.btn:hover{
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 122, 204, 0.3) !important;
+}
+
+.btn:active{
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(0, 122, 204, 0.2) !important;
+}
+
+/* Modern tab styling like VS Code */
+.tab{
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  padding: 10px 16px !important;
+  border-bottom: 2px solid transparent !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  position: relative !important;
+}
+
+.tab:hover{
+  color: var(--text-primary) !important;
+  background: var(--hover) !important;
+}
+
+.tab.active{
+  color: var(--text-bright) !important;
+  border-bottom-color: var(--accent-primary) !important;
+  background: var(--active) !important;
+}
+
+/* Badge/status indicator styling */
+.badge{
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Input and select styling like VS Code */
+input, select{
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  transition: all 0.15s ease !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+}
+
+input:focus, select:focus{
+  outline: none !important;
+  border-color: var(--focus) !important;
+  box-shadow: 0 0 0 2px rgba(0, 95, 184, 0.2) !important;
+}
+
+input:hover:not(:focus), select:hover:not(:focus){
+  border-color: var(--border-light) !important;
+}
+
+/* Sidebar styling like VS Code file explorer */
+.sidebar-item{
+  color: var(--text-primary) !important;
+  padding: 4px 12px !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+.sidebar-item:hover{
+  background: var(--hover) !important;
+  color: var(--text-bright) !important;
+}
+
+.sidebar-item:active{
+  background: var(--active) !important;
+}
+
+/* Sidebar container styling */
+.sidebar{
+  background: var(--sidebar) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Force override any Tailwind utility classes */
+* {
+  --tw-bg-opacity: 1 !important;
+  --tw-text-opacity: 1 !important;
+}
+
+/* Override specific Tailwind background classes */
+.bg-gray-50, .dark\:bg-gray-900 {
+  background-color: var(--bg) !important;
+}
+
+.text-gray-900, .dark\:text-gray-100 {
+  color: var(--text) !important;
+}
+
+/* Override any remaining Tailwind styles */
+@media (prefers-color-scheme: dark) {
+  .dark\:bg-gray-900 {
+    background-color: var(--bg) !important;
+  }
+  .dark\:text-gray-100 {
+    color: var(--text) !important;
+  }
+}
+
+/* Specific Tailwind class overrides */
+.antialiased {
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Ensure our root div styling takes precedence */
+div#root {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  height: 100vh !important;
+}

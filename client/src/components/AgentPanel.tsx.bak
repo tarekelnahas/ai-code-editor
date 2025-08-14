@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import { useWebSocket } from '../hooks/useWebSocket';
+
+interface AiMessage {
+  type: string;
+  content: string;
+}
+
+/**
+ * AgentPanel displays streaming output from the AI backend and allows the
+ * user to submit prompts. Multiple agents could be supported in the
+ * future by extending the message format. Messages are assumed to be
+ * JSON objects with type and content fields.
+ */
+const AgentPanel: React.FC = () => {
+  const { ready, send, messages } = useWebSocket<AiMessage>('ws://localhost:8000/ws/ai');
+  const [input, setInput] = useState('');
+
+  const handleSubmit = () => {
+    if (!input.trim()) return;
+    send({ type: 'user', content: input });
+    setInput('');
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+        {messages.map((msg, idx) => (
+          <div key={idx} className="text-sm whitespace-pre-wrap">
+            <strong className="capitalize">{msg.type}: </strong>
+            <span>{msg.content}</span>
+          </div>
+        ))}
+      </div>
+      <div className="border-t dark:border-gray-700 border-gray-200 p-2 flex gap-2">
+        <input
+          type="text"
+          className="flex-1 bg-transparent outline-none px-2 py-1 rounded border dark:border-gray-700 border-gray-300"
+          placeholder={ready ? 'Ask the agent…' : 'Connecting…'}
+          value={input}
+          disabled={!ready}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+        />
+        <button
+          className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
+          disabled={!ready || !input.trim()}
+          onClick={handleSubmit}
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default AgentPanel;

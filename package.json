@@ -1,0 +1,80 @@
+{
+  "name": "ai-code-editor",
+  "version": "0.1.0",
+  "description": "A next‑generation, AI‑powered, offline‑first code editor built with Electron, React and FastAPI.",
+  "main": "dist/main.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:client\" \"npm:dev:server\" \"npm:dev:electron\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:electron": "tsc -p . && cross-env NODE_ENV=development electron .",
+    "build:client": "npm --prefix client run build",
+    "build:electron": "tsc -p .",
+    "dist": "npm run build:client && npm run build:electron && electron-builder --win --x64",
+    "dist:win": "npm run build:client && npm run build:electron && electron-builder --win nsis portable -p never",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@vscode/ripgrep": "^1.15.14",
+    "concurrently": "^7.6.0",
+    "cross-env": "^10.0.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.4.0",
+    "typescript": "^5.2.2"
+  },
+  "build": {
+    "appId": "com.mido.ai.editor",
+    "productName": "Mido AI Editor",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "asar": true,
+    "asarUnpack": [
+      "server/**",
+      "node_modules/@vscode/ripgrep/**"
+    ],
+    "files": [
+      "client/dist/**",
+      "server/**",
+      "!server/.venv/**",
+      "!**/*.map",
+      "package.json",
+      "dist/**",
+      "preload.js",
+      "main.js",
+      "build/**",
+      "scripts/**",
+      "node_modules/@vscode/ripgrep/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false,
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": null
+  }
+}

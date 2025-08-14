@@ -1,0 +1,123 @@
+"""
+FastAPI backend for the AI Code Editor. This service provides both
+WebSocket and REST endpoints for interacting with local language
+models, performing RAG searches, and orchestrating collaborative
+agents. To keep the example concise the current implementation only
+implements an echo assistant. Feel free to swap the stub logic in
+AgentManager for calls into llama.cpp, Ollama or any other local
+model runner.
+"""
+
+import asyncio
+import json
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from ai_router import router as ai_router
+from ws_ai import router as ws_ai_router
+from rag_router import router as rag_router
+from rag_pro import router as ragpro_router
+
+app = FastAPI(title="AI Code Editor API")
+
+# Allow the renderer (running on localhost:5173) to connect during
+# development. In production you may want to tighten these settings.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Include AI router
+app.include_router(ai_router)
+app.include_router(ws_ai_router)
+app.include_router(rag_router)
+app.include_router(ragpro_router)
+
+
+class UserMessage(BaseModel):
+    type: str
+    content: str
+    path: str | None = None
+
+
+class AgentManager:
+    """
+    AgentManager coordinates one or more AI agents. For now it simply
+    echoes the user's input. Replace the handle_user_message method
+    with calls into your model of choice. The manager could also
+    maintain history and context across interactions.
+    """
+
+    async def handle_user_message(self, message: UserMessage) -> list[dict]:
+        # In a real implementation, spin up multiple tasks for each agent
+        # (writer, reviewer, tester) and aggregate their responses.
+        content = message.content.strip()
+        if not content:
+            return []
+        # Stub: reverse the user's message as a fake response. Wait a bit to
+        # simulate model latency.
+        await asyncio.sleep(0.5)
+        return [
+            {"type": "assistant", "content": content[::-1]},
+        ]
+
+
+agent_manager = AgentManager()
+
+
+@app.get("/ping")
+async def ping() -> dict[str, str]:
+    """Simple health check endpoint."""
+    return {"status": "ok"}
+
+
+@app.get("/health")
+async def health() -> dict[str, str]:
+    """Health check endpoint for production deployment."""
+    return {"status": "ok", "service": "ai-code-editor"}
+
+
+@app.websocket("/ws/ai")
+async def ai_websocket(ws: WebSocket) -> None:
+    """
+    WebSocket endpoint used by the renderer to stream messages to and
+    from the AI agent. Receives JSON objects from the client and
+    dispatches them to the AgentManager. Sends zero or more JSON
+    messages back to the client per input. The protocol is very
+    simple: the client sends an object with a `type` field and the
+    manager returns a list of objects with type and content fields.
+    """
+    await ws.accept()
+    try:
+        while True:
+            try:
+                text = await ws.receive_text()
+            except WebSocketDisconnect:
+                break
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError:
+                await ws.send_text(json.dumps({"type": "error", "content": "Invalid JSON"}))
+                continue
+            msg = UserMessage(**data)
+            if msg.type == 'user':
+                # Simulate thinking message
+                await ws.send_text(json.dumps({"type": "thinking", "content": "Thinking…"}))
+                responses = await agent_manager.handle_user_message(msg)
+                for resp in responses:
+                    await ws.send_text(json.dumps(resp))
+            elif msg.type == 'update':
+                # Handle document update events (e.g. for code completions). In a
+                # full implementation this would trigger a streaming
+                # completion. Here we ignore updates.
+                continue
+            else:
+                await ws.send_text(json.dumps({"type": "error", "content": f"Unsupported message type: {msg.type}"}))
+    finally:
+        try:
+            await ws.close()
+        except Exception:
+            pass

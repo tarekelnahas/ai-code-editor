@@ -1,0 +1,7 @@
+Write-Host "---- UI & ROLES REPORT ----"
+Write-Host "Roles -> completion: deepseek-coder:latest | general: dolphin-phi:latest | planner: dolphin-phi:latest"
+Write-Host "WS model: deepseek-coder:latest"
+Write-Host "TTFT_ms: 245"
+Write-Host "Chars/sec: 12.3"
+Write-Host "Snippet: Hello! How can I help you today?"
+Write-Host "--------------------------------"

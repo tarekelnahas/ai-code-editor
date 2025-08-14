@@ -1,0 +1,9 @@
+{
+  "mode": "Power-User",
+  "browserAutomation": {
+    "allow": false
+  },
+  "network": {
+    "allowDownloads": true
+  }
+}

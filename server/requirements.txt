@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+python-multipart
+httpx
+keyring
+diskcache
+watchdog
+psutil
+selenium
+requests
+beautifulsoup4
+scikit-learn
+
+
+uvicorn[standard]>=0.30,<0.40
+# prefer pydantic >=2.10 (prebuilt wheels for 3.13), fallback handled below
+pydantic>=2.10,<3.0

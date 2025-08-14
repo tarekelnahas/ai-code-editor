@@ -1,0 +1,357 @@
+/* AI_METRICS_START */
+let __ai_ws = (typeof __ai_ws !== "undefined") ? __ai_ws : null;
+let __ai_ttft = null, __ai_start = null, __ai_chars = 0, __ai_model = "";
+let __ai_timer = null;
+
+function aiResetMetrics(){ __ai_ttft=null; __ai_start=null; __ai_chars=0; __ai_model=""; if(__ai_timer){clearInterval(__ai_timer); __ai_timer=null;} }
+function aiStartMetrics(){ __ai_start = performance.now(); __ai_chars = 0; __ai_ttft = null; if(__ai_timer){clearInterval(__ai_timer);} __ai_timer=setInterval(updateStatus,500); }
+function aiOnDelta(tok){ if(__ai_ttft===null) __ai_ttft = performance.now() - __ai_start; __ai_chars += (tok||"").length; updateStatus(); }
+function aiOnStart(model){ __ai_model = model || __ai_model; aiStartMetrics(); }
+function aiOnEnd(){ updateStatus(); if(__ai_timer){clearInterval(__ai_timer); __ai_timer=null;} }
+
+function fmt(n){ if(n==null) return "—"; return Math.round(n); }
+function updateStatus(){
+  const durSec = __ai_start ? (performance.now()-__ai_start)/1000 : 0;
+  const cps = durSec>0 ? (__ai_chars/durSec).toFixed(1) : "0.0";
+  const el = document.querySelector("#agent-status");
+  if(el){
+    el.textContent = `Model: ${__ai_model||"?"} | TTFT: ${__ai_ttft?fmt(__ai_ttft)+' ms':'—'} | Rate: ${cps} chars/s | Total: ${__ai_chars}`;
+  }
+}
+
+async function aiCompleteRest(prompt, role="general", model){
+  const res = await fetch("http://127.0.0.1:8000/ai/complete", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ prompt, role, model })
+  });
+  if(!res.ok) throw new Error("AI REST failed: "+res.status);
+  return await res.json();
+}
+
+function openAiWs(prompt, role="general", model, onDelta, onStart, onEnd, onError){
+  try{
+    if(__ai_ws){ try{__ai_ws.close();}catch(e){} __ai_ws=null; }
+    const ws = new WebSocket("ws://127.0.0.1:8000/ws/ai");
+    __ai_ws = ws;
+    ws.onopen = ()=>{ onStart && onStart(); ws.send(JSON.stringify({ prompt, role, model })); };
+    ws.onmessage = (ev)=>{
+      try{
+        const obj = JSON.parse(ev.data);
+        if(obj.type==="start"){ onStart && onStart(obj.model); }
+        else if(obj.type==="delta"){ onDelta && onDelta(obj.token||""); }
+        else if(obj.type==="end"){ onEnd && onEnd(); try{ws.close();}catch{} __ai_ws=null; }
+        else if(obj.type==="error"){ onError && onError(obj.message||"error"); }
+      }catch(e){ console.error(e); }
+    };
+    ws.onerror = ()=> onError && onError("ws error");
+    ws.onclose = ()=>{};
+    return ws;
+  }catch(e){ onError && onError(String(e)); }
+}
+
+function cancelAiWs(){ if(__ai_ws){ try{__ai_ws.close();}catch(e){} __ai_ws=null; } }
+/* AI_METRICS_END */
+import React, { useState, useRef, useEffect } from 'react';
+import { useWebSocket } from '../hooks/useWebSocket';
+
+interface AiMessage {
+  type: string;
+  content: string;
+}
+
+interface MetaData {
+  roles: Record<string, string>;
+  available: string[];
+}
+
+// AI completion function using REST API
+async function aiComplete(prompt: string, role = "general", model?: string) {
+  const res = await fetch("http://127.0.0.1:8000/ai/complete", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ prompt, role, model })
+  });
+  if (!res.ok) { 
+    throw new Error(`AI request failed: ${res.status} - ${res.statusText}`); 
+  }
+  return await res.json(); // { model, content }
+}
+
+/**
+ * AgentPanel displays streaming output from the AI backend and allows the
+ * user to submit prompts. Multiple agents could be supported in the
+ * future by extending the message format. Messages are assumed to be
+ * JSON objects with type and content fields.
+ */
+const AgentPanel: React.FC = () => {
+  const { ready, send, messages } = useWebSocket<AiMessage>('ws://localhost:8000/ws/ai');
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [aiMessages, setAiMessages] = useState<AiMessage[]>([]);
+  const [wsStreaming, setWsStreaming] = useState(false);
+  const [wsOutput, setWsOutput] = useState('');
+  const [meta, setMeta] = useState<MetaData | null>(null);
+  const [selectedRole, setSelectedRole] = useState('general');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/ai/meta')
+      .then(res => res.json())
+      .then(setMeta)
+      .catch(console.error);
+  }, []);
+
+  const handleSubmit = () => {
+    if (!input.trim()) return;
+    send({ type: 'user', content: input });
+    setInput('');
+  };
+
+  const handleAiComplete = async () => {
+    if (!input.trim() || isLoading) return;
+    
+    const userInput = input.trim();
+    setInput('');
+    setIsLoading(true);
+    
+    // Add user message to AI messages
+    const userMessage: AiMessage = { type: 'user', content: userInput };
+    setAiMessages(prev => [...prev, userMessage]);
+    
+    try {
+      const result = await aiComplete(userInput, selectedRole, selectedModel || undefined);
+      const aiMessage: AiMessage = { 
+        type: 'assistant', 
+        content: `[${result.model}] ${result.content}` 
+      };
+      setAiMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      const errorMessage: AiMessage = { 
+        type: 'error', 
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      };
+      setAiMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleWsStream = () => {
+    if (!input.trim() || wsStreaming) return;
+    
+    const prompt = input.trim();
+    setInput('');
+    setWsStreaming(true);
+    setWsOutput('');
+    
+    // Close any existing connection
+    if (wsRef.current) {
+      try { wsRef.current.close(); } catch (e) {}
+    }
+    
+    const ws = new WebSocket('ws://127.0.0.1:8000/ws/ai');
+    wsRef.current = ws;
+    
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ prompt, role: selectedRole, model: selectedModel || undefined }));
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'start') {
+          // Model started
+        } else if (data.type === 'delta') {
+          setWsOutput(prev => prev + (data.token || ''));
+        } else if (data.type === 'end') {
+          setWsStreaming(false);
+          ws.close();
+          wsRef.current = null;
+        } else if (data.type === 'error') {
+          setWsOutput(prev => prev + `\n[Error: ${data.message}]`);
+          setWsStreaming(false);
+          ws.close();
+          wsRef.current = null;
+        }
+      } catch (e) {
+        console.error('WS parse error:', e);
+      }
+    };
+    
+    ws.onerror = (error) => {
+      setWsOutput(prev => prev + '\n[WebSocket Error]');
+      setWsStreaming(false);
+      wsRef.current = null;
+    };
+    
+    ws.onclose = () => {
+      setWsStreaming(false);
+      wsRef.current = null;
+    };
+  };
+
+  const handleCancelWs = () => {
+    if (wsRef.current) {
+      try {
+        wsRef.current.close();
+      } catch (e) {}
+      wsRef.current = null;
+    }
+    setWsStreaming(false);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+        <div className="text-xs text-gray-500 mb-2">WebSocket Messages:</div>
+        {messages.map((msg, idx) => (
+          <div key={`ws-${idx}`} className="text-sm whitespace-pre-wrap">
+            <strong className="capitalize">{msg.type}: </strong>
+            <span>{msg.content}</span>
+          </div>
+        ))}
+        
+        <div className="text-xs text-gray-500 mb-2 border-t pt-2">AI REST API Messages:</div>
+        {aiMessages.map((msg, idx) => (
+          <div key={`ai-${idx}`} className="text-sm whitespace-pre-wrap">
+            <strong className={`capitalize ${msg.type === 'error' ? 'text-red-500' : 'text-blue-500'}`}>
+              {msg.type}: 
+            </strong>
+            <span>{msg.content}</span>
+          </div>
+        ))}
+        
+        <div className="text-xs text-gray-500 mb-2 border-t pt-2">WS Streaming Output:</div>
+        {wsOutput && (
+          <div className="text-sm whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-2 rounded">
+            <strong>AI: </strong>
+            <span>{wsOutput}</span>
+          </div>
+        )}
+        
+        {isLoading && (
+          <div className="text-sm text-gray-500 italic">
+            <strong>AI: </strong>Thinking...
+          </div>
+        )}
+      </div>
+      <div className="border-t dark:border-gray-700 border-gray-200 p-2 space-y-2">
+        {meta && (
+          <div className="flex gap-2 text-sm">
+            <div className="flex-1">
+              <label className="text-xs text-gray-500">Role:</label>
+              <select 
+                value={selectedRole} 
+                onChange={e => setSelectedRole(e.target.value)}
+                className="w-full bg-transparent outline-none px-1 py-0.5 rounded border dark:border-gray-700 border-gray-300 text-sm"
+              >
+                {Object.keys(meta.roles).map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-gray-500">Model:</label>
+              <select 
+                value={selectedModel} 
+                onChange={e => setSelectedModel(e.target.value)}
+                className="w-full bg-transparent outline-none px-1 py-0.5 rounded border dark:border-gray-700 border-gray-300 text-sm"
+              >
+                <option value="">Auto-select</option>
+                {meta.available.map(model => (
+                  <option key={model} value={model}>{model}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <input
+          type="text"
+          className="flex-1 bg-transparent outline-none px-2 py-1 rounded border dark:border-gray-700 border-gray-300"
+          placeholder={ready ? 'Ask the agent…' : 'Connecting…'}
+          value={input}
+          disabled={isLoading || wsStreaming}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (e.shiftKey) {
+                handleSubmit(); // WebSocket
+              } else {
+                handleAiComplete(); // REST API
+              }
+            }
+          }}
+        />
+          <button
+            className="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50 text-xs"
+            disabled={!input.trim() || isLoading}
+            onClick={handleAiComplete}
+          >
+            {isLoading ? 'AI...' : 'AI'}
+          </button>
+          <button
+            className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50 text-xs"
+            disabled={!input.trim() || wsStreaming}
+            onClick={handleWsStream}
+          >
+            {wsStreaming ? 'Streaming...' : 'WS'}
+          </button>
+          <button
+            className="bg-red-600 text-white px-3 py-1 rounded disabled:opacity-50 text-xs"
+            disabled={!wsStreaming}
+            onClick={handleCancelWs}
+          >
+            Cancel
+          </button>
+        </div>
+        
+        {/* Editor Tools */}
+        <div className="border-t dark:border-gray-700 border-gray-200 pt-2 mt-2">
+          <div className="flex gap-2">
+            <button
+              className="bg-purple-600 text-white px-3 py-1 rounded text-xs"
+              onClick={async () => {
+                try {
+                  const result = await (window as any).electronAPI?.editorTools?.createPortable();
+                  if (result?.success) {
+                    alert('Portable workspace created successfully!\n\n' + result.output);
+                  }
+                } catch (error) {
+                  console.error('Failed to create portable workspace:', error);
+                  alert('Failed to create portable workspace: ' + (error as Error).message);
+                }
+              }}
+              title="Create a portable workspace that can be moved to any Windows machine"
+            >
+              Create Portable
+            </button>
+            <button
+              className="bg-orange-600 text-white px-3 py-1 rounded text-xs"
+              onClick={async () => {
+                try {
+                  const result = await (window as any).electronAPI?.editorTools?.exportLogs();
+                  if (result?.success) {
+                    alert('Logs exported successfully!\n\n' + result.output);
+                  }
+                } catch (error) {
+                  console.error('Failed to export logs:', error);
+                  alert('Failed to export logs: ' + (error as Error).message);
+                }
+              }}
+              title="Export logs and diagnostic information for troubleshooting"
+            >
+              Export Logs
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default AgentPanel
