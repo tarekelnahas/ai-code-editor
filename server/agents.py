@@ -6,8 +6,8 @@ from typing import List, Optional, Dict, Any
 import httpx
 
 import torch
-from .utils.tensor_utils import harmonize_tensors, safe_matmul
-from .tools import AVAILABLE_TOOLS, run_tool # Import the new tool components
+from utils.tensor_utils import harmonize_tensors, safe_matmul
+from tools import AVAILABLE_TOOLS, run_tool # Import the new tool components
 
 router = APIRouter()
 
@@ -15,9 +15,6 @@ router = APIRouter()
 
 def get_planner_prompt():
     """Generates the master prompt for the planner agent, including the tool list."""
-    from __future__ import annotations
-import json
-from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import httpx
