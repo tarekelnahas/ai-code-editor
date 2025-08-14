@@ -15,21 +15,6 @@ router = APIRouter()
 
 def get_planner_prompt():
     """Generates the master prompt for the planner agent, including the tool list."""
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
-import httpx
-
-import torch
-from .utils.tensor_utils import harmonize_tensors, safe_matmul
-from .tools import AVAILABLE_TOOLS, run_tool
-from .memory import ConversationMemory # Import the new Memory class
-
-router = APIRouter()
-
-# --- Agent Prompts ---
-
-def get_planner_prompt():
-    """Generates the master prompt for the planner agent, including the tool list."""
     tool_descriptions = "\n".join([f"- {tool.name}: {tool.description} Parameters: {tool.parameters}" for tool in AVAILABLE_TOOLS])
     return f"""You are a master planner AI. Your job is to take a high-level goal and break it down into a series of discrete, actionable steps for other agents to follow. Respond with ONLY a JSON object containing a 'steps' array.
 
