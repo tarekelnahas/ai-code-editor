@@ -18,10 +18,29 @@ const TerminalPanel: React.FC = () => {
     if (!containerRef.current) return;
     const term = new Terminal({
       cursorBlink: true,
-      fontSize: 12,
+      fontSize: 13,
+      fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace",
       theme: {
-        background: '#0d1117',
-        foreground: '#c9d1d9'
+        background: '#181818',
+        foreground: '#cccccc',
+        cursor: '#007acc',
+        selection: 'rgba(0, 122, 204, 0.3)',
+        black: '#000000',
+        red: '#f44336',
+        green: '#4caf50',
+        yellow: '#ff9800',
+        blue: '#2196f3',
+        magenta: '#9c27b0',
+        cyan: '#00bcd4',
+        white: '#ffffff',
+        brightBlack: '#666666',
+        brightRed: '#ff5722',
+        brightGreen: '#8bc34a',
+        brightYellow: '#ffc107',
+        brightBlue: '#03a9f4',
+        brightMagenta: '#e91e63',
+        brightCyan: '#00e5ff',
+        brightWhite: '#ffffff'
       }
     });
     const fitAddon = new FitAddon();

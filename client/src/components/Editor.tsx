@@ -140,4 +140,34 @@ const Editor: React.FC<EditorProps> = ({ filePath, content, onChange, onSave }) 
   );
 };
 
+// Helper function to get file type icons
+function getFileIcon(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'js': case 'jsx': return '🟨';
+    case 'ts': case 'tsx': return '🔷';
+    case 'css': return '🎨';
+    case 'html': return '🌐';
+    case 'json': return '📋';
+    case 'md': return '📝';
+    case 'py': return '🐍';
+    default: return '📄';
+  }
+}
+
+// Helper function to get file type colors
+function getFileIconColor(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'js': case 'jsx': return '#f7df1e';
+    case 'ts': case 'tsx': return '#3178c6';
+    case 'css': return '#1572b6';
+    case 'html': return '#e34c26';
+    case 'json': return '#ffd700';
+    case 'md': return '#083fa1';
+    case 'py': return '#3776ab';
+    default: return '#75beff';
+  }
+}
+
 export default Editor;
