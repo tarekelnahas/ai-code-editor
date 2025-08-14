@@ -46,8 +46,8 @@ ${availableTools.join(', ')}
 To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
 `;
 
-      // Use the working AI route endpoint
-      const response = await fetchJson(`${API_BASE}/ai/route`, {
+      // Use the working AI complete endpoint
+      const response = await fetchJson(`${API_BASE}/ai/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
