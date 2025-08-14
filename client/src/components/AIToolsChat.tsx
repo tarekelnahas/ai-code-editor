@@ -1,17 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchJson, API_BASE } from "../utils/net";
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp?: string;
+  id: string;
+  isStreaming?: boolean;
+  tokens?: number;
 }
+
+// Chat templates for quick prompts
+const CHAT_TEMPLATES = [
+  { name: "Code Review", prompt: "Please review this code for bugs, performance, and best practices:\n\n```\n[paste your code here]\n```" },
+  { name: "Explain Code", prompt: "Explain what this code does in simple terms:\n\n```\n[paste your code here]\n```" },
+  { name: "Debug Help", prompt: "I'm getting an error with my code. Here's the error and code:\n\nError: [paste error here]\n\nCode:\n```\n[paste code here]\n```" },
+  { name: "Optimize Code", prompt: "How can I optimize this code for better performance?\n\n```\n[paste your code here]\n```" },
+  { name: "Write Tests", prompt: "Write unit tests for this function:\n\n```\n[paste your function here]\n```" },
+  { name: "API Design", prompt: "Help me design a REST API for [describe your use case]" }
+];
 
 export default function AIToolsChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [availableTools, setAvailableTools] = useState<string[]>([]);
+  const [wsConnection, setWsConnection] = useState<WebSocket | null>(null);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   // Load available tools on mount
   useEffect(() => {
@@ -22,6 +45,26 @@ export default function AIToolsChat() {
       })
       .catch(console.error);
   }, []);
+
+  // Load chat history from localStorage
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('ai-chat-history');
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        setMessages(parsed.slice(-50)); // Keep last 50 messages
+      } catch (e) {
+        console.warn('Failed to load chat history:', e);
+      }
+    }
+  }, []);
+
+  // Save chat history to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('ai-chat-history', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
