@@ -35,6 +35,12 @@ try:
 except Exception:
     github_router = None
 
+# Code analysis router
+try:
+    from server.routers.analysis_router import router as analysis_router_new
+except Exception:
+    analysis_router_new = None
+
 # 2090 add‑on routers
 try:
     # Quantum orchestrator endpoints
@@ -126,6 +132,10 @@ app.include_router(experiments_router, prefix="/api", tags=["experiments"])
 # Include GitHub router
 if github_router is not None:
     app.include_router(github_router, prefix="/api", tags=["github"])
+
+# Include Code Analysis router
+if analysis_router_new is not None:
+    app.include_router(analysis_router_new, prefix="/api", tags=["analysis"])
 
 # Include 2090 add‑on routers (conditionally)
 if quantum_router is not None:
