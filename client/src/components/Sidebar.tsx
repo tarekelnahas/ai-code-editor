@@ -46,34 +46,52 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileOpen }) => {
   };
 
   return (
-    <div className="sidebar" style={{ 
+    <div style={{ 
       height: '100%', 
       display: 'flex', 
       flexDirection: 'column',
-      background: 'var(--sidebar)'
+      background: '#252526',
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       <div style={{ 
-        padding: '8px 12px',
-        borderBottom: '1px solid var(--border)',
+        padding: '12px 16px',
+        borderBottom: '1px solid #3c3c3c',
         fontSize: '11px',
         fontWeight: 600,
-        color: 'var(--text-secondary)',
+        color: '#cccccc',
         textTransform: 'uppercase',
-        letterSpacing: '0.05em'
+        letterSpacing: '0.05em',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
+        <span style={{ fontSize: '14px' }}>📂</span>
         Explorer
       </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div style={{ 
+        flex: 1, 
+        overflow: 'auto',
+        padding: '8px 0'
+      }}>
         {dir !== '.' && (
           <div
             onClick={goUp}
-            className="sidebar-item"
             style={{ 
+              padding: '6px 16px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '13px',
+              color: '#cccccc',
               fontWeight: 500,
-              paddingLeft: '16px'
+              transition: 'background 0.15s ease',
+              borderRadius: '4px',
+              margin: '0 8px'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
-            <span style={{ marginRight: '6px', color: 'var(--text-muted)' }}>📁</span>
+            <span style={{ marginRight: '8px', fontSize: '16px' }}>📁</span>
             ../
           </div>
         )}
@@ -81,19 +99,41 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileOpen }) => {
           <div
             key={entry.name}
             onClick={() => openEntry(entry)}
-            className="sidebar-item"
             style={{ 
-              paddingLeft: entry.isDir ? '16px' : '20px'
+              padding: '6px 16px',
+              paddingLeft: entry.isDir ? '16px' : '20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '13px',
+              color: '#cccccc',
+              transition: 'all 0.15s ease',
+              borderRadius: '4px',
+              margin: '0 8px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = entry.isDir ? 'rgba(220, 182, 122, 0.15)' : 'rgba(117, 190, 255, 0.15)';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = '#cccccc';
             }}
           >
             <span style={{ 
-              marginRight: '6px', 
-              color: entry.isDir ? '#dcb67a' : '#75beff',
-              fontSize: '14px'
+              marginRight: '8px', 
+              fontSize: '16px',
+              color: entry.isDir ? '#dcb67a' : getFileIconColor(entry.name)
             }}>
               {entry.isDir ? '📁' : getFileIcon(entry.name)}
             </span>
-            {entry.name}
+            <span style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {entry.name}
+            </span>
           </div>
         ))}
       </div>
