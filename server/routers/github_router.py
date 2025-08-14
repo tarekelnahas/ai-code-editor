@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import os
-from ..github_integration import GitHubIntegration
+from github_integration import GitHubIntegration
 
 router = APIRouter(prefix="/github", tags=["github"])
 

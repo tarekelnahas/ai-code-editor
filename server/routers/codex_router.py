@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import os
-from ..codex_integration import CodexIntegration, CodexRequest
+from codex_integration import CodexIntegration, CodexRequest
 
 router = APIRouter(prefix="/codex", tags=["codex"])
 

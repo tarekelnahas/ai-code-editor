@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional, List
 import os
 from pathlib import Path
-from ..code_analyzer import CodeAnalyzer
+from code_analyzer import CodeAnalyzer
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 

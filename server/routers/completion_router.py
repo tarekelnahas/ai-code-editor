@@ -5,7 +5,7 @@ AI Code Completion Router - API endpoints for intelligent code completion
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any, Tuple
-from ..ai_completion import AICodeCompletion, CodeContext
+from ai_completion import AICodeCompletion, CodeContext
 
 router = APIRouter(prefix="/completion", tags=["completion"])
 
