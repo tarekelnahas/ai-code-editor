@@ -267,27 +267,125 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
     }
   };
 
+  // Simple code syntax highlighting
+  const highlightCode = (content: string) => {
+    return content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+      return `<div style="background: #1e1e1e; border: 1px solid #444; border-radius: 6px; padding: 12px; margin: 8px 0; overflow-x: auto;">
+        <div style="color: #888; font-size: 11px; margin-bottom: 6px;">${lang || 'code'}</div>
+        <pre style="margin: 0; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.4;">${code.trim()}</pre>
+      </div>`;
+    });
+  };
+
   return (
-    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: '16px'}}>
-      <div style={{fontSize: 14, fontWeight: 'bold', color: '#007acc', display: 'flex', alignItems: 'center', gap: 8}}>
-        <span style={{fontSize: '16px'}}>🤖</span>
-        AI Assistant
-        <span style={{fontSize: '12px', background: 'rgba(0, 122, 204, 0.1)', padding: '2px 6px', borderRadius: '4px', color: '#007acc'}}>
-          {availableTools.length} tools
-        </span>
+    <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 0}}>
+      {/* Header */}
+      <div style={{
+        padding: '12px 16px',
+        borderBottom: '1px solid #3c3c3c',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+          <span style={{fontSize: '16px'}}>🤖</span>
+          <span style={{fontSize: 14, fontWeight: 600, color: '#cccccc'}}>AI Assistant</span>
+          <span style={{fontSize: '11px', background: 'rgba(0, 122, 204, 0.15)', padding: '3px 8px', borderRadius: '12px', color: '#007acc'}}>
+            {availableTools.length} tools
+          </span>
+        </div>
+        <div style={{display: 'flex', gap: 8}}>
+          <button
+            onClick={() => setShowTemplates(!showTemplates)}
+            style={{
+              background: 'none',
+              border: '1px solid #484848',
+              color: '#cccccc',
+              padding: '4px 8px',
+              borderRadius: 4,
+              fontSize: 11,
+              cursor: 'pointer'
+            }}
+            title="Quick Templates"
+          >
+            📝 Templates
+          </button>
+          <button
+            onClick={clearHistory}
+            style={{
+              background: 'none',
+              border: '1px solid #484848',
+              color: '#cccccc',
+              padding: '4px 8px',
+              borderRadius: 4,
+              fontSize: 11,
+              cursor: 'pointer'
+            }}
+            title="Clear Chat History"
+          >
+            🗑️ Clear
+          </button>
+        </div>
       </div>
       
+      {/* Templates Dropdown */}
+      {showTemplates && (
+        <div style={{
+          background: '#2d2d30',
+          borderBottom: '1px solid #3c3c3c',
+          padding: '8px 16px',
+          maxHeight: '200px',
+          overflowY: 'auto'
+        }}>
+          <div style={{fontSize: 12, color: '#888', marginBottom: 8}}>Quick Templates:</div>
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 8}}>
+            {CHAT_TEMPLATES.map((template, idx) => (
+              <button
+                key={idx}
+                onClick={() => applyTemplate(template)}
+                style={{
+                  background: '#1e1e1e',
+                  border: '1px solid #484848',
+                  color: '#cccccc',
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#1e1e1e'}
+              >
+                <div style={{fontWeight: 600, marginBottom: 4}}>{template.name}</div>
+                <div style={{fontSize: 10, opacity: 0.7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                  {template.prompt.substring(0, 60)}...
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Messages Area */}
       <div style={{
         flex: 1,
         overflow: 'auto',
-        border: '1px solid var(--border)',
-        borderRadius: 8,
-        padding: 12,
-        background: 'var(--panel)'
+        padding: '16px',
+        background: '#252526'
       }}>
         {messages.length === 0 && (
-          <div style={{opacity: 0.7, fontSize: 12}}>
-            Try asking: "Search web for new AI tools" or "Can you take a screenshot?" or "Open Chrome browser"
+          <div style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: '#888',
+            fontSize: 14
+          }}>
+            <div style={{fontSize: 48, marginBottom: 16}}>💬</div>
+            <div style={{marginBottom: 8}}>Welcome to AI Assistant!</div>
+            <div style={{fontSize: 12, opacity: 0.8}}>
+              Ask me anything about code, get help with debugging, or use templates for common tasks.
+            </div>
           </div>
         )}
         
