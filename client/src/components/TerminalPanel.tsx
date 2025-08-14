@@ -107,7 +107,54 @@ const TerminalPanel: React.FC = () => {
     };
   }, []);
 
-  return <div ref={containerRef} className="h-full w-full bg-black text-white" />;
+  return (
+    <div style={{
+      height: '100%',
+      width: '100%',
+      background: '#181818',
+      position: 'relative'
+    }}>
+      <div style={{
+        height: '32px',
+        borderBottom: '1px solid #3c3c3c',
+        background: '#2d2d30',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 16px',
+        fontSize: '13px',
+        color: '#cccccc',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        gap: '8px'
+      }}>
+        <span style={{ fontSize: '14px' }}>💻</span>
+        <span style={{ fontWeight: 500 }}>Terminal</span>
+        <div style={{
+          marginLeft: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <div style={{
+            fontSize: '10px',
+            background: 'rgba(76, 175, 80, 0.2)',
+            color: '#4caf50',
+            padding: '2px 6px',
+            borderRadius: '4px'
+          }}>
+            ● Active
+          </div>
+        </div>
+      </div>
+      <div 
+        ref={containerRef} 
+        style={{
+          height: 'calc(100% - 32px)',
+          width: '100%',
+          background: '#181818'
+        }}
+      />
+    </div>
+  );
 };
 
 export default TerminalPanel;
