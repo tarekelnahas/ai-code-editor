@@ -61,20 +61,81 @@ const Editor: React.FC<EditorProps> = ({ filePath, content, onChange, onSave }) 
   };
 
   return (
-    <div className="h-full w-full overflow-hidden">
-      <MonacoEditor
-        height="100%"
-        defaultLanguage="typescript"
-        defaultValue={content || '// Open or create a file to begin.'}
-        theme="vs-dark"
-        onMount={handleMount}
-        options={{
-          automaticLayout: true,
-          fontSize: 14,
-          minimap: { enabled: false },
-          wordWrap: 'on'
-        }}
-      />
+    <div style={{ 
+      height: '100%', 
+      width: '100%', 
+      overflow: 'hidden',
+      background: '#1e1e1e',
+      position: 'relative'
+    }}>
+      {filePath && (
+        <div style={{
+          height: '32px',
+          borderBottom: '1px solid #3c3c3c',
+          background: '#2d2d30',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 16px',
+          fontSize: '13px',
+          color: '#cccccc',
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+        }}>
+          <span style={{ 
+            marginRight: '8px',
+            fontSize: '14px',
+            color: getFileIconColor(filePath)
+          }}>
+            {getFileIcon(filePath)}
+          </span>
+          <span style={{ fontWeight: 500 }}>
+            {filePath.split('/').pop()}
+          </span>
+          <span style={{
+            marginLeft: '8px',
+            fontSize: '11px',
+            opacity: 0.6
+          }}>
+            {filePath}
+          </span>
+        </div>
+      )}
+      <div style={{ 
+        height: filePath ? 'calc(100% - 32px)' : '100%',
+        position: 'relative'
+      }}>
+        <MonacoEditor
+          height="100%"
+          defaultLanguage="typescript"
+          defaultValue={content || '// Open or create a file to begin coding...'}
+          theme="vs-dark"
+          onMount={handleMount}
+          options={{
+            automaticLayout: true,
+            fontSize: 14,
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace",
+            minimap: { enabled: false },
+            wordWrap: 'on',
+            lineNumbers: 'on',
+            glyphMargin: false,
+            folding: true,
+            lineDecorationsWidth: 0,
+            lineNumbersMinChars: 3,
+            renderWhitespace: 'selection',
+            scrollBeyondLastLine: false,
+            smoothScrolling: true,
+            cursorSmoothCaretAnimation: true,
+            selectOnLineNumbers: true,
+            roundedSelection: false,
+            readOnly: false,
+            cursorStyle: 'line',
+            occurrencesHighlight: false,
+            selectionHighlight: false,
+            bracketPairColorization: {
+              enabled: true
+            }
+          }}
+        />
+      </div>
     </div>
   );
 };

@@ -156,4 +156,19 @@ function getFileIcon(fileName: string): string {
   }
 }
 
+// Helper function to get file type colors
+function getFileIconColor(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'js': case 'jsx': return '#f7df1e';
+    case 'ts': case 'tsx': return '#3178c6';
+    case 'css': return '#1572b6';
+    case 'html': return '#e34c26';
+    case 'json': return '#ffd700';
+    case 'md': return '#083fa1';
+    case 'py': return '#3776ab';
+    default: return '#75beff';
+  }
+}
+
 export default Sidebar;
