@@ -39,18 +39,25 @@ const App: React.FC = () => {
       <div className="app" style={{ 
         height: "100vh", 
         display: "grid", 
-        gridTemplateRows: "35px 1fr 22px",
-        background: "var(--bg)"
+        gridTemplateRows: "48px 1fr 28px",
+        background: "#1e1e1e",
+        color: "#cccccc",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}>
         <TopBar />
         <div style={{ 
           display: "grid", 
-          gridTemplateColumns: "240px 1fr 360px", 
+          gridTemplateColumns: "280px 1fr 400px", 
           minHeight: 0,
-          overflow: "hidden"
+          overflow: "hidden",
+          gap: 0
         }}>
           {/* Sidebar */}
-          <div style={{ minHeight: 0, borderRight: "1px solid var(--border)" }}>
+          <div style={{ 
+            minHeight: 0, 
+            borderRight: "1px solid #3c3c3c",
+            background: "#252526"
+          }}>
             <Sidebar onFileOpen={handleOpenFile} />
           </div>
           
@@ -59,12 +66,13 @@ const App: React.FC = () => {
             display: "flex", 
             flexDirection: "column", 
             minHeight: 0,
-            background: "var(--editor-bg)"
+            background: "#1e1e1e"
           }}>
             <div style={{ 
               flex: 1, 
               minHeight: 0,
-              borderBottom: "1px solid var(--border)"
+              borderBottom: "1px solid #3c3c3c",
+              background: "#1e1e1e"
             }}>
               <Editor
                 filePath={activeFilePath}
@@ -74,9 +82,9 @@ const App: React.FC = () => {
               />
             </div>
             <div style={{ 
-              height: "180px",
-              borderTop: "1px solid var(--border)",
-              background: "var(--bg-secondary)"
+              height: "200px",
+              borderTop: "1px solid #3c3c3c",
+              background: "#181818"
             }}>
               <TerminalPanel />
             </div>
@@ -85,7 +93,7 @@ const App: React.FC = () => {
           {/* Right panel */}
           <div style={{ 
             minHeight: 0,
-            borderLeft: "1px solid var(--border)"
+            borderLeft: "1px solid #3c3c3c"
           }}>
             <RightPanelTabs />
           </div>
