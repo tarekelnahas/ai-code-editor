@@ -190,31 +190,50 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
         )}
       </div>
 
-      <div style={{display: 'flex', gap: 8}}>
+      <div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Ask the AI: 'Search web for new AI tools' or 'Take a screenshot'"
+          placeholder="Ask the AI anything... Press Enter to send"
           style={{
             flex: 1,
             minHeight: 60,
-            padding: 8,
+            padding: '12px 16px',
             resize: 'vertical',
-            background: 'var(--bg)',
-            color: 'var(--text)',
-            border: '1px solid var(--border)',
-            borderRadius: 6
+            background: '#2d2d30',
+            color: '#cccccc',
+            border: '1px solid #484848',
+            borderRadius: 8,
+            fontSize: 14,
+            fontFamily: 'inherit',
+            outline: 'none',
+            transition: 'border-color 0.15s ease'
           }}
           disabled={loading}
+          onFocus={(e) => e.target.style.borderColor = '#007acc'}
+          onBlur={(e) => e.target.style.borderColor = '#484848'}
         />
         <button
           onClick={sendMessage}
           disabled={loading || !input.trim()}
-          className="btn"
-          style={{alignSelf: 'flex-end', minHeight: 60}}
+          style={{
+            padding: '12px 20px',
+            background: loading ? '#333' : '#007acc',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontWeight: 600,
+            fontSize: 14,
+            minHeight: 48,
+            transition: 'all 0.15s ease',
+            boxShadow: loading ? 'none' : '0 2px 6px rgba(0, 122, 204, 0.3)'
+          }}
+          onMouseEnter={(e) => !loading && (e.target.style.background = '#005a9e')}
+          onMouseLeave={(e) => !loading && (e.target.style.background = '#007acc')}
         >
-          Send
+          {loading ? '...' : 'Send'}
         </button>
       </div>
 

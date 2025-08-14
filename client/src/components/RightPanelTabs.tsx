@@ -9,14 +9,30 @@ export default function RightPanelTabs() {
   const [tab, setTab] = useState<"chat"|"quality"|"timeline"|"experiments">("chat");
 
   return (
-    <div className="panel h-full flex flex-col min-h-0 bg-panel">
-      <div className="flex border-b border-border bg-bg-secondary">
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: '#252526',
+      borderLeft: '1px solid #3c3c3c'
+    }}>
+      <div style={{
+        display: 'flex',
+        borderBottom: '1px solid #3c3c3c',
+        background: '#2d2d30'
+      }}>
         <TabButton onClick={() => setTab('chat')} isActive={tab === 'chat'}>💬 AI Assistant</TabButton>
         <TabButton onClick={() => setTab('quality')} isActive={tab === 'quality'}>🔍 Quality</TabButton>
         <TabButton onClick={() => setTab('experiments')} isActive={tab === 'experiments'}>🔬 Experiments</TabButton>
         <TabButton onClick={() => setTab('timeline')} isActive={tab === 'timeline'}>📅 Timeline</TabButton>
       </div>
-      <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
+      <div style={{
+        flex: 1,
+        overflow: 'hidden',
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {tab === "chat" && <AIToolsChat />}
         {tab === "quality" && <QualityHub />}
         {tab === "experiments" && <ExperimentDashboard />}
