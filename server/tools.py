@@ -129,8 +129,8 @@ def generate_image(prompt: str) -> Dict[str, Any]:
 
 # --- Tool Registry ---
 AVAILABLE_TOOLS: List[Tool] = [
-    Tool(name="python_code_interpreter", description="Executes Python code in a restricted environment. Use for calculations, data manipulation, or precise logic.", parameters=[{"name": "code", "type": "string", "description": "The Python code to execute."}])
-    Tool(name="calculate_classification_metrics", description="Calculates precision, recall, and f1-score for classification results.", parameters=[{"name": "y_true", "type": "list", "description": "The true labels."}, {"name": "y_pred", "type": "list", "description": "The predicted labels."}])
+    Tool(name="python_code_interpreter", description="Executes Python code in a restricted environment. Use for calculations, data manipulation, or precise logic.", parameters=[{"name": "code", "type": "string", "description": "The Python code to execute."}]),
+    Tool(name="calculate_classification_metrics", description="Calculates precision, recall, and f1-score for classification results.", parameters=[{"name": "y_true", "type": "list", "description": "The true labels."}, {"name": "y_pred", "type": "list", "description": "The predicted labels."}]),
     Tool(name="read_file", description="Reads the entire content of a specified file.", parameters=[{"name": "path", "type": "string", "description": "The absolute or relative path to the file."}])
     Tool(name="write_file", description="Writes or overwrites content to a file.", parameters=[{"name": "path", "type": "string", "description": "The path to the file."}, {"name": "content", "type": "string", "description": "The content to write."}])
     Tool(name="list_directory", description="Lists files and subdirectories in a directory.", parameters=[{"name": "path", "type": "string", "description": "The path to the directory."}])
