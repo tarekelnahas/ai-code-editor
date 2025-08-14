@@ -390,48 +390,130 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
         )}
         
         {messages.map((msg, idx) => (
-          <div key={idx} style={{
-            marginBottom: 16,
-            padding: '12px 16px',
-            borderRadius: 8,
-            background: msg.role === 'user' ? 'rgba(0, 122, 204, 0.1)' : 
-                        msg.role === 'system' ? 'rgba(139, 69, 19, 0.1)' : 
-                        'rgba(40, 40, 40, 0.5)',
-            border: `1px solid ${msg.role === 'user' ? 'rgba(0, 122, 204, 0.2)' : 
-                                  msg.role === 'system' ? 'rgba(139, 69, 19, 0.2)' : 
-                                  'rgba(60, 60, 60, 0.3)'}`,
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
+          <div 
+            key={msg.id || idx} 
+            style={{
+              marginBottom: 20,
+              padding: '16px 20px',
+              borderRadius: 12,
+              background: msg.role === 'user' ? 'rgba(0, 122, 204, 0.08)' : 
+                          msg.role === 'system' ? 'rgba(255, 152, 0, 0.08)' : 
+                          'rgba(40, 40, 40, 0.6)',
+              border: `1px solid ${msg.role === 'user' ? 'rgba(0, 122, 204, 0.2)' : 
+                                    msg.role === 'system' ? 'rgba(255, 152, 0, 0.2)' : 
+                                    'rgba(60, 60, 60, 0.4)'}`,
+              position: 'relative',
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              const actions = e.currentTarget.querySelector('.message-actions') as HTMLElement;
+              if (actions) actions.style.opacity = '1';
+            }}
+            onMouseLeave={(e) => {
+              const actions = e.currentTarget.querySelector('.message-actions') as HTMLElement;
+              if (actions) actions.style.opacity = '0';
+            }}
+          >
+            {/* Message Header */}
             <div style={{
-              fontSize: 11, 
-              opacity: 0.8, 
-              marginBottom: 8, 
-              fontWeight: 600,
-              color: msg.role === 'user' ? '#007acc' : 
-                     msg.role === 'system' ? '#d2691e' : '#50c878',
               display: 'flex',
               alignItems: 'center',
-              gap: 6
+              justifyContent: 'space-between',
+              marginBottom: 12
             }}>
-              <span>{msg.role === 'user' ? '👤' : msg.role === 'system' ? '⚙️' : '🤖'}</span>
-              {msg.role.charAt(0).toUpperCase() + msg.role.slice(1)}
-              {msg.timestamp && (
-                <span style={{opacity: 0.6, fontSize: 10}}>
-                  • {new Date(msg.timestamp).toLocaleTimeString()}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 12,
+                fontWeight: 600,
+                color: msg.role === 'user' ? '#007acc' : 
+                       msg.role === 'system' ? '#ff9800' : '#4caf50'
+              }}>
+                <span style={{fontSize: 14}}>
+                  {msg.role === 'user' ? '👤' : msg.role === 'system' ? '⚙️' : '🤖'}
                 </span>
-              )}
+                {msg.role.charAt(0).toUpperCase() + msg.role.slice(1)}
+                {msg.isStreaming && (
+                  <span style={{
+                    fontSize: 10,
+                    background: '#4caf50',
+                    color: 'white',
+                    padding: '2px 6px',
+                    borderRadius: '8px',
+                    animation: 'pulse 1.5s infinite'
+                  }}>
+                    streaming...
+                  </span>
+                )}
+                {msg.timestamp && (
+                  <span style={{opacity: 0.6, fontSize: 10, fontWeight: 400}}>
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+              
+              {/* Message Actions */}
+              <div 
+                className="message-actions"
+                style={{
+                  display: 'flex',
+                  gap: 6,
+                  opacity: 0,
+                  transition: 'opacity 0.15s ease'
+                }}
+              >
+                <button
+                  onClick={() => copyMessage(msg.content)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: 'none',
+                    color: '#cccccc',
+                    padding: '4px 6px',
+                    borderRadius: 4,
+                    fontSize: 10,
+                    cursor: 'pointer'
+                  }}
+                  title="Copy message"
+                >
+                  📋
+                </button>
+                {msg.role !== 'system' && (
+                  <button
+                    onClick={() => deleteMessage(msg.id)}
+                    style={{
+                      background: 'rgba(244, 67, 54, 0.2)',
+                      border: 'none',
+                      color: '#f44336',
+                      padding: '4px 6px',
+                      borderRadius: 4,
+                      fontSize: 10,
+                      cursor: 'pointer'
+                    }}
+                    title="Delete message"
+                  >
+                    🗑️
+                  </button>
+                )}
+              </div>
             </div>
-            <div style={{
-              whiteSpace: 'pre-wrap',
-              fontSize: 13,
-              lineHeight: 1.5,
-              color: '#e0e0e0',
-              fontFamily: msg.role === 'system' ? 'monospace' : 'inherit'
-            }}>
-              {msg.content}
-            </div>
+            
+            {/* Message Content */}
+            <div 
+              style={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: '#e0e0e0',
+                fontFamily: msg.role === 'system' ? 'monospace' : 'inherit'
+              }}
+              dangerouslySetInnerHTML={{
+                __html: msg.role === 'assistant' ? highlightCode(msg.content) : msg.content.replace(/\n/g, '<br>')
+              }}
+            />
           </div>
         ))}
+        
+        <div ref={messagesEndRef} />
         
         {loading && (
           <div style={{fontSize: 12, opacity: 0.7}}>🤔 AI is thinking...</div>
