@@ -1,5 +1,5 @@
 # Load application-wide configuration and set random seed
-from . import config
+import config
 
 """
 FastAPI backend for the AI Code Editor. This service provides both
@@ -27,29 +27,29 @@ from ai_providers import router as providers_router
 from git_sync import router as git_router
 from sys_metrics import router as sys_router
 from tasks import router as tasks_router
-from server.routers.experiments_router import router as experiments_router
+from routers.experiments_router import router as experiments_router
 
 # GitHub integration router
 try:
-    from server.routers.github_router import router as github_router
+    from routers.github_router import router as github_router
 except Exception:
     github_router = None
 
 # Code analysis router
 try:
-    from server.routers.analysis_router import router as analysis_router_new
+    from routers.analysis_router import router as analysis_router_new
 except Exception:
     analysis_router_new = None
 
 # AI completion router
 try:
-    from server.routers.completion_router import router as completion_router
+    from routers.completion_router import router as completion_router
 except Exception:
     completion_router = None
 
 # Codex integration router
 try:
-    from server.routers.codex_router import router as codex_router
+    from routers.codex_router import router as codex_router
 except Exception:
     codex_router = None
 
