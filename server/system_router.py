@@ -15,8 +15,6 @@ class StatusRes(BaseModel):
 async def system_status() -> StatusRes:
     """Returns the current system status, including device and seed."""
     return StatusRes(device=DEVICE.type, seed=APP_SEED)
-
-router = APIRouter()
 CFG_PATH = os.path.join(os.getenv("LOCALAPPDATA",""),"AIEditor","config.json")
 WHITELIST = {"git","pip","python","node","npm","powershell","cmd","robocopy"}
 
