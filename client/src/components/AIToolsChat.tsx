@@ -21,6 +21,8 @@ const CHAT_TEMPLATES = [
 ];
 
 export default function AIToolsChat() {
+  console.log('🚀 UPGRADED AIToolsChat component loaded! Version 2.0');
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
