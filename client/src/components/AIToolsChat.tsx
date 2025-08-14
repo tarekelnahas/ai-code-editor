@@ -66,22 +66,37 @@ export default function AIToolsChat() {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
+  const generateMessageId = () => Math.random().toString(36).substr(2, 9);
+
+  const sendMessage = async (useStreaming = true) => {
     if (!input.trim() || loading) return;
 
+    const messageId = generateMessageId();
     const userMessage: ChatMessage = {
       role: 'user',
       content: input,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      id: generateMessageId()
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setLoading(true);
 
+    if (useStreaming) {
+      // Try WebSocket streaming first
+      try {
+        await sendStreamingMessage(currentInput, messageId);
+        return;
+      } catch (error) {
+        console.warn('WebSocket streaming failed, falling back to REST:', error);
+      }
+    }
+
+    // Fallback to REST API
     try {
-      // Enhanced prompt that mentions available tools
-      const enhancedPrompt = `${input}
+      const enhancedPrompt = `${currentInput}
 
 Available tools you can use:
 ${availableTools.join(', ')}
@@ -89,7 +104,6 @@ ${availableTools.join(', ')}
 To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
 `;
 
-      // Use the working AI complete endpoint
       const response = await fetchJson(`${API_BASE}/ai/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +116,8 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: response.content || 'No response received',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        id: messageId
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -153,10 +168,102 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
     }
   };
 
+  const sendStreamingMessage = async (prompt: string, messageId: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // Close existing connection
+      if (wsConnection) {
+        wsConnection.close();
+      }
+
+      const ws = new WebSocket(`ws://127.0.0.1:8000/ws/ai`);
+      setWsConnection(ws);
+      setStreamingMessageId(messageId);
+
+      // Add empty assistant message for streaming
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: '',
+        timestamp: new Date().toISOString(),
+        id: messageId,
+        isStreaming: true
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'user',
+          content: prompt
+        }));
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'assistant' || data.type === 'thinking') {
+            setMessages(prev => prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, content: msg.content + (data.content || ''), isStreaming: data.type !== 'assistant' }
+                : msg
+            ));
+          } else if (data.type === 'error') {
+            setMessages(prev => prev.map(msg => 
+              msg.id === messageId 
+                ? { ...msg, content: `Error: ${data.content}`, isStreaming: false }
+                : msg
+            ));
+            reject(new Error(data.content));
+          }
+        } catch (e) {
+          console.error('WebSocket message parse error:', e);
+        }
+      };
+
+      ws.onclose = () => {
+        setWsConnection(null);
+        setStreamingMessageId(null);
+        setLoading(false);
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId ? { ...msg, isStreaming: false } : msg
+        ));
+        resolve();
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setWsConnection(null);
+        setStreamingMessageId(null);
+        setLoading(false);
+        reject(error);
+      };
+    });
+  };
+
+  const copyMessage = (content: string) => {
+    navigator.clipboard.writeText(content);
+  };
+
+  const deleteMessage = (messageId: string) => {
+    setMessages(prev => prev.filter(msg => msg.id !== messageId));
+  };
+
+  const clearHistory = () => {
+    setMessages([]);
+    localStorage.removeItem('ai-chat-history');
+  };
+
+  const applyTemplate = (template: typeof CHAT_TEMPLATES[0]) => {
+    setInput(template.prompt);
+    setShowTemplates(false);
+    inputRef.current?.focus();
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    } else if (e.key === 'Escape') {
+      setShowTemplates(false);
     }
   };
 
