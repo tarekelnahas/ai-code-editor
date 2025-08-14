@@ -123,6 +123,10 @@ app.include_router(sys_router)
 app.include_router(tasks_router)
 app.include_router(experiments_router, prefix="/api", tags=["experiments"])
 
+# Include GitHub router
+if github_router is not None:
+    app.include_router(github_router, prefix="/api", tags=["github"])
+
 # Include 2090 add‑on routers (conditionally)
 if quantum_router is not None:
     app.include_router(quantum_router, prefix="/api/quantum", tags=["quantum2090"])
