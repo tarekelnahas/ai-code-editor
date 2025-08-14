@@ -126,6 +126,52 @@ GET  /api/completion/templates/{language} # Available templates
 POST /api/completion/context-analyze     # Analyze code context
 ```
 
+### 🧠 **OpenAI Codex Integration**
+
+**Advanced AI code generation with GPT-powered capabilities**
+
+- **Natural Language to Code**
+  - Generate complete functions from descriptions
+  - Create classes and modules from requirements
+  - Build API endpoints and database models
+  - Generate complex algorithms and data structures
+
+- **Intelligent Code Completion**
+  - Context-aware multi-line completions
+  - Function signature suggestions
+  - Smart variable and method naming
+  - Framework-specific patterns
+
+- **Code Understanding**
+  - Explain complex code in natural language
+  - Generate comprehensive documentation
+  - Identify code patterns and design principles
+  - Suggest architectural improvements
+
+- **Code Transformation**
+  - Optimize performance and readability
+  - Refactor for better structure
+  - Convert between programming languages
+  - Generate comprehensive unit tests
+
+- **Advanced Features**
+  - Multi-language code conversion
+  - Performance optimization suggestions
+  - Security vulnerability detection
+  - Best practices enforcement
+
+**API Endpoints:**
+```
+POST /api/codex/generate                  # Generate code from natural language
+POST /api/codex/complete                  # Advanced code completion
+POST /api/codex/explain                   # Explain code functionality
+POST /api/codex/optimize                  # Optimize and improve code
+POST /api/codex/generate-tests            # Generate unit tests
+POST /api/codex/convert                   # Convert between languages
+POST /api/codex/refactor                  # Refactor code structure
+GET  /api/codex/capabilities              # Get Codex capabilities
+```
+
 ### 🔧 Development Workflow Enhancements
 
 - **Automatic GitHub Sync**

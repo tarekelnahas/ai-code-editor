@@ -153,6 +153,10 @@ if analysis_router_new is not None:
 if completion_router is not None:
     app.include_router(completion_router, prefix="/api", tags=["completion"])
 
+# Include Codex router
+if codex_router is not None:
+    app.include_router(codex_router, prefix="/api", tags=["codex"])
+
 # Include 2090 add‑on routers (conditionally)
 if quantum_router is not None:
     app.include_router(quantum_router, prefix="/api/quantum", tags=["quantum2090"])
