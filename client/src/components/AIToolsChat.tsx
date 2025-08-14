@@ -520,56 +520,148 @@ To run a tool, you can ask me to "run [tool name]" and I'll execute it for you.
         )}
       </div>
 
-      <div style={{display: 'flex', gap: 12, alignItems: 'flex-end'}}>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Ask the AI anything... Press Enter to send"
-          style={{
-            flex: 1,
-            minHeight: 60,
-            padding: '12px 16px',
-            resize: 'vertical',
-            background: '#2d2d30',
-            color: '#cccccc',
-            border: '1px solid #484848',
-            borderRadius: 8,
-            fontSize: 14,
-            fontFamily: 'inherit',
-            outline: 'none',
-            transition: 'border-color 0.15s ease'
-          }}
-          disabled={loading}
-          onFocus={(e) => e.target.style.borderColor = '#007acc'}
-          onBlur={(e) => e.target.style.borderColor = '#484848'}
-        />
-        <button
-          onClick={sendMessage}
-          disabled={loading || !input.trim()}
-          style={{
-            padding: '12px 20px',
-            background: loading ? '#333' : '#007acc',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontWeight: 600,
-            fontSize: 14,
-            minHeight: 48,
-            transition: 'all 0.15s ease',
-            boxShadow: loading ? 'none' : '0 2px 6px rgba(0, 122, 204, 0.3)'
-          }}
-          onMouseEnter={(e) => !loading && (e.target.style.background = '#005a9e')}
-          onMouseLeave={(e) => !loading && (e.target.style.background = '#007acc')}
-        >
-          {loading ? '...' : 'Send'}
-        </button>
-      </div>
-
-      <div style={{fontSize: 10, opacity: 0.7}}>
-        Available tools: {availableTools.slice(0, 5).join(', ')}
-        {availableTools.length > 5 && `... +${availableTools.length - 5} more`}
+      {/* Input Area */}
+      <div style={{
+        padding: '16px',
+        borderTop: '1px solid #3c3c3c',
+        background: '#2d2d30'
+      }}>
+        <div style={{display: 'flex', gap: 12, alignItems: 'flex-end', marginBottom: 8}}>
+          <div style={{flex: 1, position: 'relative'}}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me anything about code, debugging, or use Ctrl+Enter for templates..."
+              style={{
+                width: '100%',
+                minHeight: 60,
+                maxHeight: 150,
+                padding: '12px 16px',
+                resize: 'vertical',
+                background: '#1e1e1e',
+                color: '#e0e0e0',
+                border: '2px solid #484848',
+                borderRadius: 10,
+                fontSize: 14,
+                fontFamily: 'inherit',
+                outline: 'none',
+                transition: 'all 0.15s ease',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              }}
+              disabled={loading}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#007acc';
+                e.target.style.boxShadow = '0 0 0 3px rgba(0, 122, 204, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#484848';
+                e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                } else if (e.ctrlKey && e.key === 'Enter') {
+                  e.preventDefault();
+                  setShowTemplates(true);
+                }
+              }}
+            />
+            {input.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                right: 8,
+                bottom: 8,
+                fontSize: 10,
+                color: '#666',
+                background: '#2d2d30',
+                padding: '2px 6px',
+                borderRadius: 4
+              }}>
+                {input.length} chars
+              </div>
+            )}
+          </div>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+            <button
+              onClick={() => sendMessage(true)}
+              disabled={loading || !input.trim()}
+              style={{
+                padding: '12px 18px',
+                background: loading ? '#333' : 'linear-gradient(135deg, #007acc, #005a9e)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: 600,
+                fontSize: 14,
+                minHeight: 48,
+                minWidth: 80,
+                transition: 'all 0.15s ease',
+                boxShadow: loading ? 'none' : '0 4px 12px rgba(0, 122, 204, 0.3)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-1px)')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
+            >
+              {loading ? (
+                <span style={{display: 'flex', alignItems: 'center', gap: 4}}>
+                  <span style={{
+                    width: 12,
+                    height: 12,
+                    border: '2px solid #fff',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></span>
+                  AI...
+                </span>
+              ) : (
+                <span style={{display: 'flex', alignItems: 'center', gap: 4}}>
+                  🚀 Send
+                </span>
+              )}
+            </button>
+            
+            <button
+              onClick={() => sendMessage(false)}
+              disabled={loading || !input.trim()}
+              style={{
+                padding: '8px 12px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#cccccc',
+                border: '1px solid #484848',
+                borderRadius: 6,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: 12,
+                transition: 'all 0.15s ease'
+              }}
+              title="Send without streaming"
+            >
+              📤 REST
+            </button>
+          </div>
+        </div>
+        
+        {/* Status Bar */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: 11,
+          color: '#888'
+        }}>
+          <div>
+            💡 Tip: Use templates button or Ctrl+Enter for quick prompts
+          </div>
+          <div>
+            {wsConnection ? '🟢 Streaming ready' : '🔵 REST mode'} • {availableTools.length} tools available
+          </div>
+        </div>
       </div>
     </div>
   );
