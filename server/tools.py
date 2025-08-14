@@ -140,16 +140,16 @@ AVAILABLE_TOOLS: List[Tool] = [
     Tool(name="execute_shell_command", description="Executes a shell command. DANGEROUS - USE WITH CAUTION.", parameters=[{"name": "command", "type": "string", "description": "The shell command to execute."}]),
     Tool(name="make_api_request", description="Makes an HTTP request to an API.", parameters=[{"name": "method", "type": "string", "description": "HTTP method"}, {"name": "url", "type": "string", "description": "API URL"}, {"name": "params", "type": "dict", "description": "Query parameters"}, {"name": "body", "type": "dict", "description": "JSON body"}]),
     Tool(name="query_database", description="Executes a read-only SQL query.", parameters=[{"name": "sql_query", "type": "string", "description": "The SQL SELECT statement."}]),
-    Tool(name="send_email", description="Sends an email.", parameters=[{"name": "recipient", "type": "string"}, {"name": "subject", "type": "string"}, {"name": "body", "type": "string"}])
-    Tool(name="create_calendar_event", description="Creates a calendar event.", parameters=[{"name": "title", "type": "string"}, {"name": "start_time", "type": "string"}, {"name": "end_time", "type": "string"}, {"name": "attendees", "type": "list"}])
-    Tool(name="get_git_status", description="Runs `git status`.", parameters=[])
-    Tool(name="create_git_commit", description="Creates a git commit.", parameters=[{"name": "message", "type": "string"}])
-    Tool(name="ask_user_for_clarification", description="Asks the user a question.", parameters=[{"name": "question", "type": "string"}])
-    Tool(name="finish_task", description="Signals the task is complete.", parameters=[{"name": "final_answer", "type": "string"}])
-    Tool(name="delegate_task_to_another_agent", description="Delegates a task to a different agent.", parameters=[{"name": "agent_name", "type": "string"}, {"name": "task_description", "type": "string"}])
-    Tool(name="vector_search_documents", description="Performs a semantic search on documents.", parameters=[{"name": "query", "type": "string"}])
-    Tool(name="summarize_text", description="Summarizes a long piece of text.", parameters=[{"name": "text", "type": "string"}])
-    Tool(name="extract_entities", description="Extracts named entities from text.", parameters=[{"name": "text", "type": "string"}])
+    Tool(name="send_email", description="Sends an email.", parameters=[{"name": "recipient", "type": "string"}, {"name": "subject", "type": "string"}, {"name": "body", "type": "string"}]),
+    Tool(name="create_calendar_event", description="Creates a calendar event.", parameters=[{"name": "title", "type": "string"}, {"name": "start_time", "type": "string"}, {"name": "end_time", "type": "string"}, {"name": "attendees", "type": "list"}]),
+    Tool(name="get_git_status", description="Runs `git status`.", parameters=[]),
+    Tool(name="create_git_commit", description="Creates a git commit.", parameters=[{"name": "message", "type": "string"}]),
+    Tool(name="ask_user_for_clarification", description="Asks the user a question.", parameters=[{"name": "question", "type": "string"}]),
+    Tool(name="finish_task", description="Signals the task is complete.", parameters=[{"name": "final_answer", "type": "string"}]),
+    Tool(name="delegate_task_to_another_agent", description="Delegates a task to a different agent.", parameters=[{"name": "agent_name", "type": "string"}, {"name": "task_description", "type": "string"}]),
+    Tool(name="vector_search_documents", description="Performs a semantic search on documents.", parameters=[{"name": "query", "type": "string"}]),
+    Tool(name="summarize_text", description="Summarizes a long piece of text.", parameters=[{"name": "text", "type": "string"}]),
+    Tool(name="extract_entities", description="Extracts named entities from text.", parameters=[{"name": "text", "type": "string"}]),
     Tool(name="generate_image", description="Creates an image from a text prompt.", parameters=[{"name": "prompt", "type": "string"}])
 
 ]
