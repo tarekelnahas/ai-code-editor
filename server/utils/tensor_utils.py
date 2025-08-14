@@ -1,6 +1,6 @@
 # In server/utils/tensor_utils.py
 import torch
-from server.config import DEVICE # Import the global device setting
+from config import DEVICE # Import the global device setting
 
 def harmonize_tensors(*tensors: torch.Tensor, dtype: torch.dtype = torch.float32) -> list[torch.Tensor]:
     """
