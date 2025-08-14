@@ -3,7 +3,9 @@ import os, json, subprocess, shlex
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from server.config import DEVICE, APP_SEED
+from config import DEVICE, APP_SEED
+
+router = APIRouter()
 
 class StatusRes(BaseModel):
     device: str
