@@ -16,6 +16,7 @@ import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from utils.security import SecurityValidator
 from ai_router import router as ai_router
 from ws_ai import router as ws_ai_router
 from rag_router import router as rag_router
@@ -117,14 +118,13 @@ except Exception:
 
 app = FastAPI(title="AI Code Editor API")
 
-# Allow the renderer (running on localhost:5173) to connect during
-# development. In production you may want to tighten these settings.
+# CORS configuration with restricted settings for security
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174", "http://localhost:5175", "http://127.0.0.1:5175"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"]
 )
 
 # Include AI router
@@ -251,6 +251,17 @@ async def ai_websocket(ws: WebSocket) -> None:
             except json.JSONDecodeError:
                 await ws.send_text(json.dumps({"type": "error", "content": "Invalid JSON"}))
                 continue
+            
+            # Validate and sanitize user input
+            try:
+                if 'content' in data and data['content']:
+                    data['content'] = SecurityValidator.sanitize_input(data['content'], max_length=50000)
+                if 'path' in data and data['path']:
+                    SecurityValidator.validate_file_path(data['path'])
+            except ValueError as e:
+                await ws.send_text(json.dumps({"type": "error", "content": f"Security validation failed: {str(e)}"}))
+                continue
+            
             msg = UserMessage(**data)
             if msg.type == 'user':
                 # Simulate thinking message

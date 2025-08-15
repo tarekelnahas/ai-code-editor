@@ -7,6 +7,7 @@ from pydantic import BaseModel
 import keyring
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from utils.security import SecurityValidator, require_safe_execution
 
 router = APIRouter()
 APPDATA = os.getenv("LOCALAPPDATA","")
@@ -27,8 +28,24 @@ def save_cfg(cfg:dict):
     Path(CFG_DIR).mkdir(parents=True, exist_ok=True)
     with open(CFG_PATH,"w",encoding="utf-8") as f: json.dump(cfg,f,indent=2)
 
+@require_safe_execution
 def run(cmd:list[str], cwd:Optional[str]=None, timeout:int=120)->tuple[int,str]:
-    p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, shell=False)
+    # Sanitize command arguments
+    try:
+        sanitized_cmd = SecurityValidator.sanitize_command_args(cmd)
+        # Remove quotes for subprocess.run
+        clean_cmd = [arg.strip("'\"") for arg in sanitized_cmd]
+    except ValueError as e:
+        raise HTTPException(400, f"Security validation failed: {str(e)}")
+    
+    # Validate working directory
+    if cwd:
+        try:
+            SecurityValidator.validate_file_path(cwd)
+        except ValueError as e:
+            raise HTTPException(400, f"Invalid working directory: {str(e)}")
+    
+    p = subprocess.run(clean_cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, shell=False)
     return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 def over_size(path:Path)->bool:
@@ -206,6 +223,7 @@ class WatchReq(BaseModel):
     enable: bool = True
 
 @router.post("/git/config")
+@require_safe_execution
 def git_config(req:GitConfigReq):
     cfg=load_cfg()
     g=cfg["git"]
@@ -219,6 +237,7 @@ def git_config(req:GitConfigReq):
     return {"ok": True, "git": g}
 
 @router.post("/git/set_token")
+@require_safe_execution
 def git_set_token(req:TokenReq):
     keyring.set_password(SERVICE, "github_pat", req.token)
     keyring.set_password(SERVICE, "github_user", req.user)
@@ -232,6 +251,7 @@ def git_status(repoPath: Optional[str]=None, branch: Optional[str]=None):
     return repo_status(repo, br)
 
 @router.post("/git/push")
+@require_safe_execution
 def git_push(req:PushReq):
     cfg=load_cfg(); g=cfg["git"]
     repo=req.repoPath or g["repoPath"]
@@ -241,6 +261,7 @@ def git_push(req:PushReq):
     return {"ok": True, "out": out}
 
 @router.post("/git/watch")
+@require_safe_execution
 def git_watch(req:WatchReq):
     cfg=load_cfg(); g=cfg["git"]
     repo=g.get("repoPath")
