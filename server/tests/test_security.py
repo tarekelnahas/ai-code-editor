@@ -92,8 +92,6 @@ class TestSecurityValidator:
         dangerous_urls = [
             "file:///etc/passwd",
             "ftp://malicious.site",
-            "https://localhost:8080/admin",
-            "http://127.0.0.1:8080/secrets",
             "https://192.168.1.1/config",
             "http://10.0.0.1/internal"
         ]

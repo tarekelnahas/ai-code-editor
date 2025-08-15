@@ -24,7 +24,7 @@ class SecurityValidator:
     
     # Dangerous command patterns to block
     DANGEROUS_PATTERNS = [
-        r'[;&|`$]',  # Command injection characters
+        r'[;&|`$(){}]',  # Command injection characters
         r'\.\./\.\.',  # Path traversal
         r'rm\s+-rf',  # Dangerous rm commands
         r'del\s+/[sq]',  # Dangerous Windows delete
@@ -32,6 +32,7 @@ class SecurityValidator:
         r'shutdown|reboot',  # System control
         r'net\s+user',  # User management
         r'reg\s+delete',  # Registry manipulation
+        r'DROP\s+TABLE',  # SQL injection patterns
     ]
     
     @staticmethod
