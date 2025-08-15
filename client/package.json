@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit && echo 'TypeScript check passed'",
-    "test": "echo 'No tests specified yet'"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.6",
