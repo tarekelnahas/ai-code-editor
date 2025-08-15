@@ -110,11 +110,19 @@ export default defineConfig(({ command, mode }) => {
       rollupOptions: {
         output: {
           // Separate vendor chunks for better caching
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            monaco: ['@monaco-editor/react', 'monaco-editor'],
-            terminal: ['xterm', 'xterm-addon-fit'],
-            utils: ['date-fns', 'lodash-es']
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@monaco-editor') || id.includes('monaco-editor')) {
+                return 'vendor-monaco';
+              }
+              if (id.includes('xterm')) {
+                return 'vendor-terminal';
+              }
+              return 'vendor-libs';
+            }
           },
           
           // Optimize chunk file names
