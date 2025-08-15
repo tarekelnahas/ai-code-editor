@@ -123,12 +123,13 @@ class SecurityValidator:
             if parsed.scheme not in ['http', 'https']:
                 raise ValueError(f"Invalid URL scheme: {parsed.scheme}")
             
-            # Block localhost and private IP ranges
+            # Block localhost and private IP ranges (except for development)
             hostname = parsed.hostname
-            if hostname in ['localhost', '127.0.0.1', '0.0.0.0'] or \
+            if hostname and hostname not in ['localhost', '127.0.0.1'] and (
                hostname.startswith('192.168.') or \
                hostname.startswith('10.') or \
-               hostname.startswith('172.'):
+               hostname.startswith('172.') or \
+               hostname == '0.0.0.0'):
                 raise ValueError("Access to private networks not allowed")
             
             return url
