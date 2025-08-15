@@ -21,6 +21,7 @@ from __future__ import annotations
 import subprocess
 import shutil
 from typing import List, Dict, Any
+from utils.security import SecurityValidator, require_safe_execution
 
 
 # Define a large catalogue of tooling. Each entry specifies the
@@ -220,6 +221,7 @@ def list_tools() -> List[Dict[str, Any]]:
     return [dict(tool) for tool in TOOLS]
 
 
+@require_safe_execution
 def run_tool(name: str) -> Dict[str, Any]:
     """Run the tool with the given name.
 
@@ -265,7 +267,20 @@ def run_tool(name: str) -> Dict[str, Any]:
     try:
         # We run the tool with '--help' to avoid performing actual scans.
         run_cmd = cmd_list + ["--help"] if binary not in ("echo", "npm") else cmd_list
-        proc = subprocess.run(run_cmd, capture_output=True, text=True, timeout=30)
+        
+        # Sanitize command arguments for security
+        try:
+            sanitized_cmd = SecurityValidator.sanitize_command_args(run_cmd)
+            # Remove quotes that shlex.quote adds since we're passing to subprocess.run as list
+            clean_cmd = [arg.strip("'\"") for arg in sanitized_cmd]
+        except ValueError as e:
+            return {
+                "name": tool["name"],
+                "status": "error",
+                "output": f"Security validation failed for {tool['name']}: {str(e)}",
+            }
+        
+        proc = subprocess.run(clean_cmd, capture_output=True, text=True, timeout=30)
         output = proc.stdout or proc.stderr
         return {
             "name": tool["name"],
