@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 import TerminalPanel from './components/TerminalPanel';
@@ -8,6 +8,7 @@ import StatusBar from "./components/StatusBar";
 import { PluginProvider } from './contexts/PluginContext';
 import { colors, spacing, typography } from './design/theme';
 import { scrollbarStyles } from './design/components';
+import { usePerformanceMonitoring, registerServiceWorker } from './utils/performance';
 
 /**
  * Context 7 Rebuilt App Component
