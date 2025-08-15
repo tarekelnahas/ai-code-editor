@@ -7,6 +7,7 @@ import httpx
 import keyring
 from diskcache import Cache
 from pathlib import Path
+from utils.security import SecurityValidator, require_safe_execution
 
 router = APIRouter()
 APPDATA = os.getenv("LOCALAPPDATA","")
@@ -235,7 +236,14 @@ async def try_provider(provider:str, cfg:dict, prompt:str, role:str, model_overr
     return None
 
 @router.post("/ai/route", response_model=RouteRes)
+@require_safe_execution
 async def ai_route(req: RouteReq):
+    # Validate and sanitize user prompt
+    try:
+        if req.prompt:
+            req.prompt = SecurityValidator.validate_ai_prompt(req.prompt)
+    except ValueError as e:
+        raise HTTPException(400, f"Invalid prompt: {str(e)}")
     cfg = load_cfg()
     offline = bool(cfg["ai"]["offlineOnly"]) or not bool(cfg["network"]["allowExternalAI"])
     timeout = int(cfg["network"]["timeoutSec"] or 60)
