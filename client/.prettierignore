@@ -1,0 +1,8 @@
+dist/
+node_modules/
+*.min.js
+*.min.css
+coverage/
+build/
+.vite/
+public/vite.svg
