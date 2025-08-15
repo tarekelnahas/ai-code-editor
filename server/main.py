@@ -17,6 +17,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from utils.security import SecurityValidator
+from middleware.performance import PerformanceMiddleware, cleanup_old_metrics
 from ai_router import router as ai_router
 from ws_ai import router as ws_ai_router
 from rag_router import router as rag_router
@@ -115,6 +116,12 @@ try:
     from ai_chat import router as ai_chat_router  # type: ignore
 except Exception:
     ai_chat_router = None
+
+# Performance monitoring router
+try:
+    from routers.performance_router import router as performance_router
+except Exception:
+    performance_router = None
 
 app = FastAPI(title="AI Code Editor API")
 
