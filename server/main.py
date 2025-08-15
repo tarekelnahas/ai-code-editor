@@ -125,6 +125,15 @@ except Exception:
 
 app = FastAPI(title="AI Code Editor API")
 
+# Add performance monitoring middleware
+app.add_middleware(PerformanceMiddleware)
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize background tasks"""
+    # Start metrics cleanup task
+    asyncio.create_task(cleanup_old_metrics())
+
 # CORS configuration with restricted settings for security
 app.add_middleware(
     CORSMiddleware,
